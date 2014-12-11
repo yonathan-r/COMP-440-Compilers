@@ -1,9 +1,2 @@
-# Compiled source#
-###################
-**/bin/
-*.class
 
-# OS specific generated files #
-###############################
-.DS_Store
-.Trashes
+/bin/

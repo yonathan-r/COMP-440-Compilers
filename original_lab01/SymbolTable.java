@@ -1,11 +1,6 @@
-package com.compiler.lab01;
-
 import java.util.*;
 
-
 public class SymbolTable {
-
-	private Stack<Entry> scopeStack;
 
     /**
      *  Create a new global scope object.  Initialize the scope 
@@ -16,7 +11,6 @@ public class SymbolTable {
      *  on the scope stack.  
      */
     public SymbolTable() {
-    	scopeStack = new Stack<Entry>();
     }
 
     /**  
@@ -27,9 +21,6 @@ public class SymbolTable {
      *  'symTabEntry'.  
      */
     public boolean insertBinding(Entry symTabEntry) {
-    	if(scopeStack.push(symTabEntry)==null)
-    		return false;
-    	return true;
     }
 
     /**  
@@ -37,8 +28,6 @@ public class SymbolTable {
      *  i.e., call toString() on the top entry.
      */
     public String currentScope() {
-    	Entry x = scopeStack.peek();
-    	return x.toString();
     }
 
     /**  
@@ -52,13 +41,6 @@ public class SymbolTable {
      *  name denotes two different entities.  
      */
     public Entry lookup(String name) {
-    	Entry entry;
-    	while(true){
-    		entry = scopeStack.pop();
-    		if(entry.name().equals(name))
-    			return entry;
-    	}
-
     }
 
     /**  
@@ -72,10 +54,6 @@ public class SymbolTable {
      *  Return null if 'name1.name2' is not found.
      */
     public Entry lookup(String name1, String name2) {
-    	Entry entry1=lookup(name1);
-    	if(entry1 instanceof ClassEntry)
-    		return ((ClassEntry) entry1).lookup(name2);
-    	return null;
     }
 
     /**  
@@ -83,10 +61,6 @@ public class SymbolTable {
      *  Return null if no such object is found in the scope stack.
      */
     public MethodEntry enclosingMethod() {
-    	Entry methodEntry = scopeStack.pop();
-    	if(methodEntry instanceof MethodEntry && methodEntry!=null)
-    		return (MethodEntry)methodEntry;
-    	return null;
     }
 
     /**  
@@ -96,7 +70,6 @@ public class SymbolTable {
      *  Return true if the operation is successful, otherwise return false.
      */
     public boolean enterScope(ScopeEntry scopeEntry) {
-    	return scopeStack.add(scopeEntry);
     }
 
     /**  
@@ -110,12 +83,6 @@ public class SymbolTable {
      *  null and do not leave the global scope.  
      */
     public ScopeEntry leaveScope() {
-    	Entry scopeEntry;
-    	while(true){
-    		scopeEntry = scopeStack.pop();
-    		if((ScopeEntry)scopeEntry instanceof ScopeEntry)
-    			return (ScopeEntry)scopeEntry;
-    	}
     }
 
     /**  
@@ -126,13 +93,6 @@ public class SymbolTable {
      *  Return true if the operation is successful, otherwise return false.
      */
     public boolean enterNewBlock() {
-    	try{
-    		BlockEntry blockEntry = new BlockEntry();
-    		scopeStack.push(blockEntry);
-    		return true;
-    	}catch(Exception e){
-    		return false;
-    	}
     }
 
     /**  
@@ -141,10 +101,5 @@ public class SymbolTable {
      *  i.e., call toString() on the bottom entry of the stack.
      */
     public String toString() {
-    	StringBuilder strBuilder = new StringBuilder();
-    	while(scopeStack.size()>0)
-    		strBuilder.append(scopeStack.pop().toString()+"\n");
-    	return strBuilder.toString();
-    		
     }
 }              // End of class SymbolTable            

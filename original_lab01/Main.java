@@ -1,4 +1,3 @@
-package com.compiler.lab01;
 
 import java.util.*;
 
@@ -6,146 +5,147 @@ public class Main {
     static SymbolTable symtab;
 
     static Yytoken nextToken(Yylex lexer) throws java.io.IOException {
-    	Yytoken tok = lexer.yylex();
-		if (tok != null) {
-		    tok.m_line += 1; // for some reason the line number is off by one
-		}
-		return tok;
+	Yytoken tok = lexer.yylex();
+	if (tok != null) {
+	    tok.m_line += 1; // for some reason the line number is off by one
+	}
+	return tok;
     }
     static Type matchVarType(int tok) {
-		switch (tok) {
-			case Yytoken.t_int:
-			    return Type.intVar;
-			case Yytoken.t_char:
-			    return Type.charVar;
-			case Yytoken.t_string:
-			    return Type.stringVar;
-			case Yytoken.t_float:
-			    return Type.floatVar;
-			default:
-			    return Type.errorType;
-			}
+	switch (tok) {
+	case Yytoken.t_int:
+	    return Type.intVar;
+	case Yytoken.t_char:
+	    return Type.charVar;
+	case Yytoken.t_string:
+	    return Type.stringVar;
+	case Yytoken.t_float:
+	    return Type.floatVar;
+	default:
+	    return Type.errorType;
+	}
     }
     static Type matchValueType(int tok) {
-		switch (tok) {
-			case Yytoken.t_int:
-			    return Type.intValue;
-			case Yytoken.t_char:
-			    return Type.charValue;
-			case Yytoken.t_void:
-			    return Type.voidValue;
-			case Yytoken.t_string:
-			    return Type.stringValue;
-			case Yytoken.t_float:
-			    return Type.floatValue;
-			default:
-			    return null;
-			}
+	switch (tok) {
+	case Yytoken.t_int:
+	    return Type.intValue;
+	case Yytoken.t_char:
+	    return Type.charValue;
+	case Yytoken.t_void:
+	    return Type.voidValue;
+	case Yytoken.t_string:
+	    return Type.stringValue;
+	case Yytoken.t_float:
+	    return Type.floatValue;
+	default:
+	    return null;
+	}
     }
     static VariableEntry makeVariable(Type t, Yytoken tok2) {
-		if (tok2.m_index == Yytoken.t_ident) {
-		    String name = tok2.m_text;
-		    return new VariableEntry(name, t);
-		} else {
-		    return null;
-		}
+	if (tok2.m_index == Yytoken.t_ident) {
+	    String name = tok2.m_text;
+	    return new VariableEntry(name, t);
+	} else {
+	    return null;
+	}
     }
     static String insertErrorMessage(Entry ent, String name) {
-		if (ent == null) {
-		    return (" -- redeclaration of identifier " + name);
-		} else if (ent instanceof MethodEntry) {
-		 return (" -- method declarations are not allowed in this scope");
-		} else if (ent instanceof ClassEntry) {
-		    return (" -- class declarations are not allowed in this scope");
-		}
-		return " -- binding for " + name + " was not inserted ";
+	if (ent == null) {
+	    return (" -- redeclaration of identifier " + name);
+	} else if (ent instanceof MethodEntry) {
+	 return (" -- method declarations are not allowed in this scope");
+	} else if (ent instanceof ClassEntry) {
+	    return (" -- class declarations are not allowed in this scope");
+	}
+	return " -- binding for " + name + " was not inserted ";
     }
     static void enterScope(String name, int line) {
-		Entry se1 = symtab.lookup(name);
-		if (se1 != null) {
-		    if (se1 instanceof ScopeEntry) {
-			symtab.enterScope((ScopeEntry)se1);
-			System.out.println("Successful command "
-					   + line + ": new_scope " + name);
-		    } else {
-			System.out.println("Unsuccessful command "
-					   + line + ": new_scope " + name
-					   + " -- not a class or method");
-		    }
-		} else {
-		    System.out.println("Unsuccessful command "
-				       + line + ": new_scope " + name
-				       + " -- not a class or method");
-		}
+	Entry se1 = symtab.lookup(name);
+	if (se1 != null) {
+	    if (se1 instanceof ScopeEntry) {
+		symtab.enterScope((ScopeEntry)se1);
+		System.out.println("Successful command "
+				   + line + ": new_scope " + name);
+	    } else {
+		System.out.println("Unsuccessful command "
+				   + line + ": new_scope " + name
+				   + " -- not a class or method");
+	    }
+	} else {
+	    System.out.println("Unsuccessful command "
+			       + line + ": new_scope " + name
+			       + " -- not a class or method");
+	}
     }
     static void successMessage(Yytoken tok[], int length) {
-		System.out.print("Successful command " + tok[0].m_line + ": ");
-		System.out.print(tok[0].m_text + " ");
-		for (int i=1; i<length; i++) {
-		    System.out.print(" " + tok[i].m_text);
-		}
-		System.out.println();
+	System.out.print("Successful command " + tok[0].m_line + ": ");
+	System.out.print(tok[0].m_text + " ");
+	for (int i=1; i<length; i++) {
+	    System.out.print(" " + tok[i].m_text);
+	}
+	System.out.println();
     }
     static void errorMessage(Yytoken tok[], int length, String msg) {
-		System.out.print("Unsuccessful command "
-				 + tok[0].m_line + ": ");
-		System.out.print(tok[0].m_text + " ");
-		for (int i=1; i<length; i++) {
-		    System.out.print(" " + tok[i].m_text);
-		}
-		System.out.println(msg);
+	System.out.print("Unsuccessful command "
+			 + tok[0].m_line + ": ");
+	System.out.print(tok[0].m_text + " ");
+	for (int i=1; i<length; i++) {
+	    System.out.print(" " + tok[i].m_text);
+	}
+	System.out.println(msg);
     }
     static void invalidCmdMessage(Yytoken tok[], int length, String msg) {
-		System.out.print("Invalid command "
-				 + tok[0].m_line + ": ");
-		System.out.print(tok[0].m_text);
-		for (int i=1; i<length; i++) {
-		    System.out.print(" " + tok[i].m_text);
-		}
-		System.out.println(msg);
+	System.out.print("Invalid command "
+			 + tok[0].m_line + ": ");
+	System.out.print(tok[0].m_text);
+	for (int i=1; i<length; i++) {
+	    System.out.print(" " + tok[i].m_text);
+	}
+	System.out.println(msg);
     }
 
 
     public static void main(String[] args) {
-		if (args.length == 0) {
-		    System.out.println("No input file has been specified");
-		    System.exit(-1);
-		}
-		for (int i=0; i<1; i++) {
-		    try {
-		    	//  System.out.println("Processing " + args[i]);
-		    	processFile(args[i]);
-		    }catch (java.io.IOException e) {
-		    	System.out.println(e);
-		    }
-		}
+	if (args.length == 0) {
+	    System.out.println("No input file has been specified");
+	    System.exit(-1);
+	}
+	for (int i=0; i<args.length; i++) {
+	    try {
+	      //  System.out.println("Processing " + args[i]);
+		processFile(args[i]);
+	    }
+	    catch (java.io.IOException e) {
+		System.out.println(e);
+	    }
+	}
     }
 
     public static void matchNewScopeId(Yytoken tok[]) {
-		if (tok[1] == null) {
-		    // EOF
-		    invalidCmdMessage(tok, 1, "");
-		} else if (tok[1].m_index == Yytoken.t_ident) {
-		    enterScope(tok[1].m_text, tok[0].m_line);
-		    System.out.println("The new scope is ");
-		    System.out.println(symtab.currentScope());
-		} else {
-		    errorMessage(tok, 2, "");
-		}
+	if (tok[1] == null) {
+	    // EOF
+	    invalidCmdMessage(tok, 1, "");
+	} else if (tok[1].m_index == Yytoken.t_ident) {
+	    enterScope(tok[1].m_text, tok[0].m_line);
+	    System.out.println("The new scope is ");
+	    System.out.println(symtab.currentScope());
+	} else {
+	    errorMessage(tok, 2, "");
+	}
     }
 
 
     public static void processFile(String fileName) throws java.io.IOException {
-		Entry se1, se2;
-		String name, name2;
-		Type rt;
-		VariableEntry parm1, parm2;
-		Vector parms;
-		Yytoken token[] = new Yytoken[10];
+	Entry se1, se2;
+	String name, name2;
+	Type rt;
+	VariableEntry parm1, parm2;
+	Vector parms;
+	Yytoken token[] = new Yytoken[10];
 
-		symtab = new SymbolTable();
-		Yylex lexer = new Yylex(new java.io.FileInputStream(fileName));
-		token[0] = nextToken(lexer);
+	symtab = new SymbolTable();
+	Yylex lexer = new Yylex(new java.io.FileInputStream(fileName));
+	token[0] = nextToken(lexer);
 
 	// the lexer returns null on end of file.
 	while (token[0] != null) {
